@@ -1,3 +1,7 @@
+# WARNING
+
+This branch is deprecated; please switch to master
+
 # Abstract
 
 This library is an implementation of the TOSCA definition as described in the document written in pure GO
