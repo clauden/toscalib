@@ -17,6 +17,7 @@ package toscalib
 
 import (
 	"fmt"
+  "os"
 	"reflect"
 )
 
@@ -97,6 +98,9 @@ func (s *ServiceTemplateDefinition) EvaluateStatement(i interface{}) (interface{
 				}
 				return output, nil
 			case "get_input":
+
+        fmt.Fprintf(os.Stderr, "GET_INPUT: %s\n", s.TopologyTemplate.Inputs)
+
 				return s.TopologyTemplate.Inputs[v[0].(string)].Value, nil
 				// Find the inputs and returns it
 			case "get_property":
