@@ -150,12 +150,12 @@ func compose(node toscalib.NodeTemplate) string {
                                           reflect.ValueOf(vv).Interface())
                                           // .([]interface{}))
 
-                                      cunt, ok := v.(map[interface{}] interface{})
+                                      froob, ok := v.(map[interface{}] interface{})
                                       if !ok {
-                                        fmt.Fprintf(os.Stderr, "    fucking cunt!!!!!!\n")
+                                        fmt.Fprintf(os.Stderr, "    blorting froob!!!!!!\n")
                                       } else {
-                                        fmt.Fprintf(os.Stderr, "    fucking %s\n", cunt)
-                                        for k,v := range cunt {
+                                        fmt.Fprintf(os.Stderr, "    blorting %s\n", froob)
+                                        for k,v := range froob {
                                           fmt.Fprintf(os.Stderr, "    %s -> %s\n", k, v)
                                           ass, ok := v.(map[interface{}]interface{}) 
                                           if ok {
@@ -173,7 +173,7 @@ func compose(node toscalib.NodeTemplate) string {
                                           fmt.Fprintln(os.Stderr, key.Interface(), strct.Interface())
                                         }
                                       } else {
-                                        fmt.Fprintf(os.Stderr, "    ....... fuck me\n")
+                                        fmt.Fprintf(os.Stderr, "    ....... blort me\n")
                                       }
 ***/
                                    }
