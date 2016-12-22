@@ -11,7 +11,7 @@ dryrun=0
 yaml=""
 
 usage() {
-  echo "Usage: %0 [-x executable] [-y yaml-file] [-o output-file] -d"
+  echo "Usage: $0 [-x executable] [-y yaml-file] [-o output-file] -d"
   echo "       d means dry-run"
   echo
 }

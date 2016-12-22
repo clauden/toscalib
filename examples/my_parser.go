@@ -17,7 +17,7 @@ package main
 
 import (
 	"fmt"
-  // "reflect"
+  "reflect"
 	"github.com/awalterschulze/gographviz"
 	"github.com/owulveryck/toscalib"
 	"github.com/owulveryck/toscalib/toscaexec"
@@ -74,27 +74,30 @@ func compose(node toscalib.NodeTemplate) string {
   s = s + `    <td port="port2" border="1">` +"\n"
   s = s + `      <table border="1" cellspacing="0">` + "\n"
                    s = s + `<tr> <td colspan="5">REQUIREMENTS</td> </tr>` + "\n"
+                   s = s + `<tr> <td>index</td> <td>name</td> <td>capability</td> <td> node </td> <td> relationship </td> </tr>` + "\n" 
+
                    for k,v := range node.Requirements {
                      s = s + `<tr>` + "\n"
 
                      // row index
                      s = s + `<td>` + fmt.Sprintf("%d", k) + `</td>` + "\n"
-                     // s = s + `<td>` + composeHelper(fmt.Sprintf("%d", k), "req_number") + `</td>` + "\n"
+                     // s = s + `<td>` + composeHelper(fmt.Sprintf("%d", k), "") + `</td>` + "\n"
 
                      for n,r := range v {
                        // r := toscalib.RequirementAssignment(v)
 
                        // requirement name
-                       s += `<td>` + composeHelper(n, "__huh__") + `</td>` + "\n"
+                       s += `<td>` + composeHelper(n, "") + `</td>` + "\n"
 
-                       // ?
-                       s += `<td>` + composeHelper(r.Capability, "__capab__") + `</td>` + "\n"
+                       // required capability
+                       s += `<td>` + composeHelper(r.Capability, "") + `</td>` + "\n"
 
-                       // requirement target
-                       s += `<td>` + composeHelper(r.Node, "__node__") + `</td>` + "\n"
+                       // required node type
+                       s += `<td>` + composeHelper(r.Node, "") + `</td>` + "\n"
 
-                       // required relationship?
-                       s += `<td>` + composeHelper(r.RelationshipName, "__rname__") + `</td>` + "\n"
+                       // required relationship
+                       s += `<td>` + composeHelper(r.RelationshipName, "") + `</td>` + "\n"
+
                        s = s + `</tr>` + "\n"
 
                        // s = s + `<tr><td>` + composeHelper(fmt.Sprintf("%s = %s", k, v), "requirements") + `</td></tr>` + "\n"
@@ -113,42 +116,126 @@ func compose(node toscalib.NodeTemplate) string {
                      s = s + `<tr> <td colspan="5"> none </td> </tr>` + "\n"
                    } else {
                    
-                   for k,v := range node.Capabilities {
-                     s = s + `<tr>` + "\n"
+                    for k,v := range node.Capabilities {
+                         s = s + `<tr>` + "\n"
+                         s = s + `<td>` + fmt.Sprintf("%s", k) + `</td>` + "\n"
 
-                     // row index
-                     s = s + `<td>` + fmt.Sprintf("%d", k) + `</td>` + "\n"
-                     // s = s + `<td>` + composeHelper(fmt.Sprintf("%d", k), "cap_number") + `</td>` + "\n"
+                         fmt.Fprintf(os.Stderr, "\n\nk: %v\n", k)
+                         if (v != nil) {
+                            fmt.Fprintf(os.Stderr, "    Cap type: %T\n", v)
+                            switch t := v.(type) {
+                              case string:
+                                fmt.Fprintf(os.Stderr, "    Capability_string: %s\n", v)
+
+                              case map[string]interface {}:
+                                m := make(map[string]interface{})
+                                fmt.Fprintf(os.Stderr, "    Capability_map[string]: %s\n", m)
+
+                              case map[interface {}]interface {}:
+
+                                switch reflect.TypeOf(v).Kind() {
+                                  case reflect.String:
+                                    fmt.Fprintf(os.Stderr, "FOO: %s\n", v)
+                                  case reflect.Int:
+                                    fmt.Fprintf(os.Stderr, "BAR: %s\n", v)
+                                  case reflect.Map:
+                                   // Convert it to a PropertyAssignment
+                                   pa := reflect.ValueOf(v).Interface().(map[interface{}]interface{})
+                                   paa := make(toscalib.PropertyAssignment, 0) 
+                                   for kk, vv := range pa {
+                                      fmt.Fprintf(os.Stderr, "    Attribute %s:\n", kk)
+                                      fmt.Fprintf(os.Stderr, "    Kind: %s\n", reflect.TypeOf(vv).Kind())
+                                      fmt.Fprintf(os.Stderr, "    Value-raw: %s\n", vv)
+                                      fmt.Fprintf(os.Stderr, "    Value-interface: %s\n", 
+                                          reflect.ValueOf(vv).Interface())
+                                          // .([]interface{}))
+
+                                      cunt, ok := v.(map[interface{}] interface{})
+                                      if !ok {
+                                        fmt.Fprintf(os.Stderr, "    fucking cunt!!!!!!\n")
+                                      } else {
+                                        fmt.Fprintf(os.Stderr, "    fucking %s\n", cunt)
+                                        for k,v := range cunt {
+                                          fmt.Fprintf(os.Stderr, "    %s -> %s\n", k, v)
+                                          ass, ok := v.(map[interface{}]interface{}) 
+                                          if ok {
+                                            for kk, vv := range ass {
+                                              fmt.Fprintf(os.Stderr, "         %s -> %s\n", kk, vv)
+                                            }
+                                          }
+                                        }
+                                      }
+                                        
+ /*****
+                                      if vv.Kind() == reflect.Map {
+                                        for _, key := range vv.MapKeys() {
+                                          strct := vv.MapIndex(key)
+                                          fmt.Fprintln(os.Stderr, key.Interface(), strct.Interface())
+                                        }
+                                      } else {
+                                        fmt.Fprintf(os.Stderr, "    ....... fuck me\n")
+                                      }
+***/
+                                   }
+                                    
+                                    //for kk, vv := range pa {
+							                      //paa[kk.(string)] = reflect.ValueOf(vv).Interface().([]interface{})
+                                    //}
+
+                                    fmt.Fprintf(os.Stderr, "    Packed: %s\n", paa)
+                                }
 
 
-                     for n,r := range v.(map[string]toscalib.CapabilityDefinition) {
 
-                       // r := toscalib.CapabilityDefinition(v)
-                       // Type, Properties, Attributes, ValidSourceTypes, Occurences
 
-                       // cap name
-                       s += `<td>` + composeHelper(n, "_") + `</td>` + "\n"
+                                _, ok := v.(map[string]interface {})
+                                if (!ok) {
+                                  fmt.Fprintf(os.Stderr, "    Capability_map[not-a-string]: %v\n", v)
+                                  fmt.Fprintf(os.Stderr, "    ... %s\n", reflect.TypeOf(v))
+                                  fmt.Fprintf(os.Stderr, "    ... %s\n", reflect.TypeOf(v).Key())
+                                  // z := reflect.Value(v) 
+                                  // fmt.Fprintf(os.Stderr, "    ... %v\n", z)
 
-                       // type
-                       s += `<td>` + composeHelper(r.Type, "") + `</td>` + "\n"
 
-                       // properties
-                       s += `<td>` + composeHelper(r.Properties, "") + `</td>` + "\n"
+/***
+                                  _, ok2 := v.(map[ map[string]interface{} ]interface {})
+                                  if (!ok2) {
+                                    fmt.Fprintf(os.Stderr, "    Capability_map[no-clue]: %v\n", v)
+                                    fmt.Fprintf(os.Stderr, "    ... %s\n", reflect.TypeOf(v))
+                                    fmt.Fprintf(os.Stderr, "    ... %s\n", reflect.TypeOf(v).Key())
+                                  } else { 
+                                    fmt.Fprintf(os.Stderr, "    Capability_map[turns-out-to-be-a-map]: %v\n", v)
+                                    fmt.Fprintf(os.Stderr, "    ... %s\n", reflect.TypeOf(v))
+                                    fmt.Fprintf(os.Stderr, "    ... %s\n", reflect.TypeOf(v).Key())
+                                  }
+***/
+                                } else {
+                                  fmt.Fprintf(os.Stderr, "    Capability_map[turns-out-to-be-a-string]: %v\n", v)
+                                }
+                                
+                              default:
+                                fmt.Fprintf(os.Stderr, "Capability_other: %T\n", t)
+                            }
+                           // fmt.Fprintf(os.Stderr, "Capability: %s\n", v.(map[string]string))
+                           /*******
+                              m := make(map[string]interface{})
+                                  
+                                  
+                              fmt.Fprintf(os.Stderr, "map: %s\n", m)
+                            *******/
+                         } else {
+                           fmt.Fprintf(os.Stderr, "v is nil\n")
+                        }
 
-                       // attributes
-                       s += `<td>` + composeHelper(r.Attributes, "") + `</td>` + "\n"
+                         
+                       // for j,z := range v {
+                         // fmt.Fprintf(os.Stderr, "%T, %T", j, z)
+                        //}
 
-                       // valid sourcetypes
-                       s += `<td>` + composeHelper(r.ValidSourceTypes, "") + `</td>` + "\n"
-
-                       // occurences
-                       s += `<td>` + composeHelper(r.Occurences, "") + `</td>` + "\n"
-
+                       // s = s + `<td>` + composeHelper(fmt.Sprintf("%v", v["properties"]), "") + `</td>` + "\n"
                        s = s + `</tr>` + "\n"
 
-                       // s = s + `<tr><td>` + composeHelper(fmt.Sprintf("%s = %s", k, v), "requirements") + `</td></tr>` + "\n"
                      }
-                  }
                   }
   // s = s + `    <td port="port8" border="1">` + composeHelper(fmt.Sprintf("%s", node.Capabilities), "capabilities") + `</td>` + "\n"
 
@@ -158,6 +245,8 @@ func compose(node toscalib.NodeTemplate) string {
   s = s + `  </tr>` + "\n"
   s = s + `  <tr ><td colspan="2" port="port2" border="1">` + composeHelper(fmt.Sprintf("%s", node.Attributes), "attributes") + `</td></tr>` + "\n"
   s = s + `</table>>` + "\n"
+
+
 
   return s
 }
@@ -174,11 +263,13 @@ func main() {
 	}
 
   // dump all the nodes for learning purposes
-	fmt.Fprintf(os.Stderr, "ServiceTemplate: %s\n", t.Description)
+	/***
+  fmt.Fprintf(os.Stderr, "ServiceTemplate: %s\n", t.Description)
 	for _, p := range t.NodeTypes {
 		// fmt.Fprintf(os.Stderr, "Type: %+v\n", p)
 		spew.Fdump(os.Stderr, p)
 	}
+  ***/
 
   // ???
 	// out, err := yaml.Marshal(t)
@@ -192,7 +283,7 @@ func main() {
 
   // resolve the topology to a workflow
 	e := toscaexec.GeneratePlaybook(t)
-	fmt.Fprintf(os.Stderr, "Playbook: %s\n", e)
+	// fmt.Fprintf(os.Stderr, "Playbook: %s\n", e)
 
   // step through the workflow
 	for i, p := range e.Index {
@@ -204,7 +295,7 @@ func main() {
 
     // i don't grok template, so instead just make a nice graphviz-formatted label
     label = compose(p.NodeTemplate)
-    fmt.Fprintf(os.Stderr, "Label: %s\n", label)
+    // fmt.Fprintf(os.Stderr, "Label: %s\n", label)
  
 		g.AddNode("G", fmt.Sprintf("%v", i),
 			map[string]string {
