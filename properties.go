@@ -16,7 +16,9 @@ limitations under the License.
 package toscalib
 
 import (
+	"os"
 	"fmt"
+ "github.com/davecgh/go-spew/spew"
 )
 
 // PropertyDefinition as described in Appendix 5.7:
@@ -39,6 +41,7 @@ type PropertyDefinition struct {
 }
 
 func (p *PropertyDefinition) UnmarshalYAML(unmarshal func(interface{}) error) error {
+  fmt.Fprintf(os.Stderr, "UnmarshalYAML1: %s\n", p)
 	var s string
 	if err := unmarshal(&s); err == nil {
 		(*p).Value = s
@@ -55,6 +58,9 @@ func (p *PropertyDefinition) UnmarshalYAML(unmarshal func(interface{}) error) er
 		EntrySchema map[string]interface{} `yaml:"entry_schema,omitempty" json:"entry_schema,omitempty"`
 	}
 	err := unmarshal(&test2)
+
+  spew.Fdump(os.Stderr, "    %v\n", test2)
+
 	if err == nil {
 		p.Value = test2.Value
 		p.Type = test2.Type
@@ -75,6 +81,7 @@ func (p *PropertyDefinition) UnmarshalYAML(unmarshal func(interface{}) error) er
 type PropertyAssignment map[string][]interface{}
 
 func (p *PropertyAssignment) MarshalYAML() (interface{}, error) {
+  fmt.Fprintf(os.Stderr, "MarshalYAML: %s\n", p)
 	for k, v := range *p {
 		if k == "value" {
 			if len(v) != 1 {
@@ -87,6 +94,9 @@ func (p *PropertyAssignment) MarshalYAML() (interface{}, error) {
 }
 
 func (p *PropertyAssignment) UnmarshalYAML(unmarshal func(interface{}) error) error {
+
+  fmt.Fprintf(os.Stderr, "UnmarshalYAML2: %s\n", p)
+
 	var s string
 	intf := make([]interface{}, 1)
 	*p = make(map[string][]interface{}, 1)
